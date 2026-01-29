@@ -10,27 +10,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Quicksand', sans-serif;
-            /* Màu nền mặc định (sáng) */
             background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 100%);
             color: #d63384;
             overflow-x: hidden;
             min-height: 100vh;
-            transition: background 1s ease, color 1s ease;
+            transition: background 1s ease;
         }
         .hidden { display: none !important; }
         .fadeIn { animation: fadeIn 1.5s ease forwards; }
         .fadeOut { animation: fadeOut 1s ease forwards; }
+        body.dark-mode { background: #222; color: #eee; }
 
-        /* Class để chuyển sang chế độ tối khi thổi nến */
-        body.dark-mode {
-             background: #222;
-             color: #eee;
-        }
-
-        /* --- MÀN 1: WELCOME OVERLAY --- */
+        /* --- MÀN 1: WELCOME --- */
         #scene-welcome {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #ffe6e9; z-index: 100;
+            background-color: #ffe6e9; z-index: 1000; /* Cao nhất */
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         #scene-welcome h1 { font-family: 'Dancing Script', cursive; font-size: 3rem; margin-bottom: 20px; }
@@ -40,82 +34,56 @@
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4); animation: pulse 1.5s infinite;
         }
 
-        /* --- MÀN 2: CSS CAKE (Thổi nến) --- */
+        /* --- MÀN 2: CSS CAKE --- */
         #scene-cake {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Nền trong suốt để thấy body tối màu phía sau */
-            background-color: transparent;
-            z-index: 90;
+            z-index: 900;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-
-        /* ================= CSS CAKE DRAWING ================= */
         .cake-container {
-            position: relative; width: 250px; height: 200px;
-            margin-top: 50px; cursor: pointer;
+            position: relative; width: 250px; height: 200px; margin-top: 50px;
+            /* Không click vào bánh được, phải click vào nến */
+            cursor: default; 
         }
-
-        /* Các lớp bánh */
-        .cake-layer {
-            position: absolute; width: 100%; border-radius: 20px;
-        }
-        .layer-bottom {
-            bottom: 0; height: 100px; background: #f3a6b3; /* Màu cốt bánh hồng đậm */
-            box-shadow: 0 5px 0 #e08a9d, 0 10px 20px rgba(0,0,0,0.3);
-        }
-        .layer-top {
-            bottom: 50px; height: 80px; background: #ffccd5; /* Màu cốt bánh hồng nhạt */
-            box-shadow: 0 5px 0 #f3a6b3; z-index: 2;
-        }
+        .cake-layer { position: absolute; width: 100%; border-radius: 20px; }
+        .layer-bottom { bottom: 0; height: 100px; background: #f3a6b3; box-shadow: 0 5px 0 #e08a9d, 0 10px 20px rgba(0,0,0,0.3); }
+        .layer-top { bottom: 50px; height: 80px; background: #ffccd5; box-shadow: 0 5px 0 #f3a6b3; z-index: 2; }
         .icing {
-            top: 70px; height: 30px; background: #fff; /* Lớp kem phủ trắng */
-            border-radius: 20px 20px 5px 5px; z-index: 3;
+            top: 70px; height: 30px; background: #fff; border-radius: 20px 20px 5px 5px; z-index: 3;
             background-image: radial-gradient(circle at 20px 0, #fff 15px, transparent 16px);
             background-size: 40px 20px; background-repeat: repeat-x;
         }
         
-        /* Nến */
+        /* Cấu hình Nến - Click vào đây mới tắt */
         .candle {
             position: absolute; bottom: 150px; width: 12px; height: 45px;
             background: repeating-linear-gradient(45deg, #fff, #fff 5px, #ff4d6d 5px, #ff4d6d 10px);
-            border-radius: 3px; z-index: 4;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 3px; z-index: 4; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer; /* Hình bàn tay chỉ khi di chuột vào nến */
+            transition: transform 0.2s;
         }
-        /* Vị trí 3 cây nến */
+        .candle:hover { transform: scale(1.1); } /* Hiệu ứng phóng to nhẹ khi di chuột vào nến */
+        
         .c1 { left: 50px; }
         .c2 { left: 120px; }
         .c3 { left: 190px; }
-
-        /* Bấc nến */
-        .wick {
-            position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-            width: 3px; height: 8px; background: #333; border-radius: 2px;
-        }
-
-        /* Ngọn lửa */
+        .wick { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 8px; background: #333; border-radius: 2px; }
         .flame {
             position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
             width: 16px; height: 25px;
             background: radial-gradient(ellipse at bottom, #ffeb3b 0%, #ff9800 60%, #ff5722 100%);
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
             box-shadow: 0 0 20px #ffeb3b, 0 0 40px #ff9800;
-            animation: flicker 0.1s infinite alternate;
-            transform-origin: bottom center;
+            animation: flicker 0.1s infinite alternate; transform-origin: bottom center;
         }
-
-        /* Trạng thái khi nến đã thổi tắt */
-        .cake-container.blown-out .flame {
-            display: none; /* Ẩn ngọn lửa đi */
-        }
-
+        .cake-container.blown-out .flame { display: none; }
         .cake-instruction { margin-top: 40px; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px #ff4d6d; }
-        /* ================= END CSS CAKE ================= */
-
 
         /* --- MÀN 3: BLIND BOX --- */
         #scene-gifts {
             padding: 50px 20px; text-align: center; min-height: 100vh;
             display: flex; flex-direction: column; justify-content: center;
+            position: relative; z-index: 800;
         }
         .gift-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -129,7 +97,6 @@
             transition: all 0.5s ease; position: relative; overflow: hidden;
         }
         .blind-box:hover:not(.opened) { animation: shake 0.5s ease infinite; }
-        
         .blind-box.opened { background: white; transform: rotateY(180deg); cursor: default; box-shadow: none; border: 2px solid #ffccd5;}
         .box-content {
             display: none; flex-direction: column; align-items: center; padding: 10px;
@@ -143,26 +110,42 @@
         #transition-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-family: 'Dancing Script', cursive; font-size: 3rem;
-            text-align: center; width: 100%; z-index: 80;
+            text-align: center; width: 100%; z-index: 800;
         }
 
         /* --- MÀN 4: FINALE --- */
-        #scene-finale { max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; min-height: 100vh; }
+        #scene-finale { 
+            max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; min-height: 100vh;
+            position: relative; 
+            z-index: 500; /* Màn này chứa nội dung chính */
+        }
+
+        /* Container của Lời chúc và Ảnh cuối: Đặt Z-index cao nhất để đè lên ảnh rơi */
+        .finale-content {
+            position: relative;
+            z-index: 1000; /* QUAN TRỌNG: Cao hơn z-index của falling-photo */
+        }
+
         .final-photo-frame {
             background: white; padding: 15px; border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); transform: rotate(-2deg); margin-bottom: 40px;
         }
         .final-photo-frame img { width: 100%; border-radius: 10px; display: block; }
+        
         .long-wish {
-            background: rgba(255, 255, 255, 0.9); padding: 30px;
-            border-radius: 20px; font-size: 1.1rem; line-height: 1.8; color: #590d22;
-            box-shadow: 0 5px 15px rgba(214, 51, 132, 0.1);
+            background: rgba(255, 255, 255, 0.95); /* Nền trắng đục để dễ đọc chữ */
+            padding: 30px; border-radius: 20px; font-size: 1.1rem; line-height: 1.8; color: #590d22;
+            box-shadow: 0 5px 25px rgba(214, 51, 132, 0.2);
+            backdrop-filter: blur(5px); /* Làm mờ ảnh rơi phía sau 1 chút cho đẹp */
         }
 
         /* --- HIỆU ỨNG RƠI ẢNH --- */
         .falling-photo {
-            position: fixed; top: -20%; z-index: 1; animation: fall linear forwards;
+            position: fixed; top: -20%; 
+            z-index: 100; /* Thấp hơn .finale-content (1000) nhưng cao hơn body */
+            animation: fall linear forwards;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid white; border-radius: 5px;
+            pointer-events: none; /* Để chuột click xuyên qua ảnh rơi */
         }
 
         /* --- ANIMATIONS --- */
@@ -171,13 +154,8 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes fall { to { transform: translateY(120vh) rotate(360deg); } }
-        /* Animation rung lắc cho ngọn lửa */
-        @keyframes flicker {
-            0% { transform: translateX(-50%) scale(1); opacity: 1; }
-            100% { transform: translateX(-50%) scale(0.9, 1.1); opacity: 0.8; }
-        }
+        @keyframes flicker { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(0.9, 1.1); opacity: 0.8; } }
 
-        /* Responsive */
         @media (max-width: 600px) {
             #scene-welcome h1, #transition-text { font-size: 2rem; }
             .gift-grid { grid-template-columns: repeat(2, 1fr); }
@@ -196,58 +174,42 @@
     </div>
 
     <div id="scene-cake" class="hidden">
-        <div class="cake-container" id="css-cake-container" onclick="blowCandles()">
+        <div class="cake-container" id="css-cake-container">
             <div class="cake-layer layer-bottom"></div>
             <div class="cake-layer layer-top"></div>
             <div class="cake-layer icing"></div>
             
-            <div class="candle c1">
-                <div class="wick"></div>
-                <div class="flame"></div> </div>
-            <div class="candle c2">
+            <div class="candle c1" onclick="blowCandles()">
                 <div class="wick"></div>
                 <div class="flame"></div>
             </div>
-            <div class="candle c3">
+            <div class="candle c2" onclick="blowCandles()">
+                <div class="wick"></div>
+                <div class="flame"></div>
+            </div>
+            <div class="candle c3" onclick="blowCandles()">
                 <div class="wick"></div>
                 <div class="flame"></div>
             </div>
         </div>
-        
-        <p class="cake-instruction" id="cake-msg">Em hãy click vào bánh để thổi nến nhé! 🎂</p>
+        <p class="cake-instruction" id="cake-msg">Hãy click vào ngọn nến để thổi tắt nhé! 🕯️</p>
     </div>
 
     <div id="scene-gifts" class="hidden">
         <h2 style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 30px;">Blind Box Thời Gian 🎁</h2>
         <p>Chọn từng hộp để xem điều bất ngờ nhé!</p>
         <div class="gift-grid">
-            <div class="blind-box" onclick="openBox(this)">
-                <span>?</span>
-                <div class="box-content">
-                    <img src="gift1.jpg" alt="Kỷ niệm 1">
-                    <p>Kỷ niệm ngày chúng ta đi chơi...</p>
-                </div>
+            <div class="blind-box" onclick="openBox(this)"><span>?</span>
+                <div class="box-content"><img src="gift1.jpg" alt="1"><p>Lời chúc 1...</p></div>
             </div>
-             <div class="blind-box" onclick="openBox(this)">
-                <span>?</span>
-                <div class="box-content">
-                    <img src="gift2.jpg" alt="Kỷ niệm 1">
-                    <p>Tấm này cute xỉu...</p>
-                </div>
+            <div class="blind-box" onclick="openBox(this)"><span>?</span>
+                <div class="box-content"><img src="gift2.jpg" alt="2"><p>Lời chúc 2...</p></div>
             </div>
-             <div class="blind-box" onclick="openBox(this)">
-                <span>?</span>
-                <div class="box-content">
-                    <img src="gift3.jpg" alt="Kỷ niệm 1">
-                    <p>Nhớ hôm này không nè...</p>
-                </div>
+            <div class="blind-box" onclick="openBox(this)"><span>?</span>
+                <div class="box-content"><img src="gift3.jpg" alt="3"><p>Lời chúc 3...</p></div>
             </div>
-             <div class="blind-box" onclick="openBox(this)">
-                <span>?</span>
-                <div class="box-content">
-                    <img src="gift4.jpg" alt="Kỷ niệm 1">
-                    <p>Và món quà bí mật...</p>
-                </div>
+            <div class="blind-box" onclick="openBox(this)"><span>?</span>
+                <div class="box-content"><img src="gift4.jpg" alt="4"><p>Lời chúc 4...</p></div>
             </div>
         </div>
     </div>
@@ -257,18 +219,22 @@
     </div>
 
     <div id="scene-finale" class="hidden">
-        <h1 style="font-family: 'Dancing Script'; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 2px 2px white;">HAPPY BIRTHDAY! 🎂</h1>
-        <div class="final-photo-frame">
-            <img src="final-photo.jpg" alt="Bức ảnh đẹp nhất">
-        </div>
-        <div class="long-wish">
-            <p>
-                Gửi em gái yêu quý của anh, <br><br>
-                Chúc mừng sinh nhật em! 🎉 Mong em tuổi mới luôn rạng rỡ, vui vẻ và đạt được mọi điều mình mong ước. Anh sẽ luôn ở bên ủng hộ em.<br><br>
-                Yêu thương em nhiều! ❤️<br>
-                <strong style="float: right;">- [Tên Anh Trai] -</strong>
-            </p>
-            <div style="clear: both;"></div>
+        <div class="finale-content">
+            <h1 style="font-family: 'Dancing Script'; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 2px 2px white;">HAPPY BIRTHDAY! 🎂</h1>
+            <div class="final-photo-frame">
+                <img src="final-photo.jpg" alt="Bức ảnh đẹp nhất">
+            </div>
+            <div class="long-wish">
+                <p>
+                    Gửi em gái yêu quý, <br><br>
+                    Chúc mừng sinh nhật em! 🎉 Món quà cuối cùng này là những lời chúc chân thành nhất của anh.
+                    Hy vọng những tấm ảnh vừa rồi đã gợi lại cho em những kỷ niệm vui vẻ. <br><br>
+                    Tuổi mới hãy thật hạnh phúc, xinh đẹp và thành công nhé. Anh sẽ luôn là hậu phương vững chắc cho em.<br><br>
+                    Yêu thương em nhiều! ❤️<br>
+                    <strong style="float: right;">- [Tên Anh Trai] -</strong>
+                </p>
+                <div style="clear: both;"></div>
+            </div>
         </div>
     </div>
 
@@ -277,43 +243,35 @@
         const totalGifts = 4;
         const music = document.getElementById("hpbd-music");
         
-        // DANH SÁCH ẢNH RƠI RANDOM (Hãy thay tên ảnh của bạn vào đây)
+        // DANH SÁCH ẢNH RƠI (Thay tên ảnh của bạn vào đây)
         const fallingImages = [
             'gift1.jpg', 'gift2.jpg', 'gift3.jpg', 'gift4.jpg', 'final-photo.jpg'
         ];
 
-        // --- BẮT ĐẦU HÀNH TRÌNH ---
         function startJourney() {
             music.volume = 0.6;
-            music.play().catch(e => console.log("Chặn tự động phát"));
-            
-            // Thêm class dark-mode vào body để làm tối màn hình
+            music.play().catch(e => console.log("Audio play blocked"));
             document.body.classList.add('dark-mode');
-            
-            // Chuyển sang màn bánh kem
             changeScene('scene-welcome', 'scene-cake', 'fadeIn');
         }
 
-        // --- XỬ LÝ THỔI NẾN CSS ---
+        // --- XỬ LÝ THỔI NẾN (Cập nhật) ---
         function blowCandles() {
             const cakeContainer = document.getElementById('css-cake-container');
             const cakeMsg = document.getElementById('cake-msg');
             
-            // Thêm class 'blown-out' vào container bánh
-            // CSS sẽ dựa vào class này để ẩn đi các ngọn lửa (.flame)
+            // Nếu nến đã tắt rồi thì không làm gì nữa (tránh click nhiều lần)
+            if (cakeContainer.classList.contains('blown-out')) return;
+
             cakeContainer.classList.add('blown-out');
-            
             cakeMsg.innerHTML = "Yeah! Nến tắt rồi! 👏";
             
-            // Đợi 2 giây rồi chuyển cảnh và làm sáng màn hình
             setTimeout(() => {
-                 // Xóa class dark-mode để màn hình sáng lại
                  document.body.classList.remove('dark-mode');
                 changeScene('scene-cake', 'scene-gifts', 'fadeIn');
             }, 2000);
         }
 
-        // --- MỞ BLIND BOX ---
         function openBox(boxElement) {
             if (boxElement.classList.contains('opened')) return;
             boxElement.classList.add('opened');
@@ -324,16 +282,15 @@
             }
         }
 
-        // --- CHUYỂN ĐẾN MÀN CUỐI ---
         function transitionToFinale() {
             changeScene('scene-gifts', 'transition-text', 'fadeIn');
             setTimeout(() => {
                 changeScene('transition-text', 'scene-finale', 'fadeIn');
+                // Bắt đầu mưa ảnh ngay khi vào màn cuối
                 startFallingPhotos();
             }, 3000);
         }
 
-        // --- HÀM TIỆN ÍCH CHUYỂN CẢNH ---
         function changeScene(hideId, showId, effectClass) {
             const hideEl = document.getElementById(hideId);
             const showEl = document.getElementById(showId);
@@ -345,7 +302,6 @@
             }, 900);
         }
 
-        // --- HIỆU ỨNG MƯA ẢNH RANDOM ---
         function startFallingPhotos() {
             setInterval(() => {
                 const imgContainer = document.createElement('div');
