@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật Em Gái!</title>
+    <title>Quà Sinh Nhật Tặng Thư</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* --- CẤU HÌNH CHUNG --- */
@@ -19,13 +19,21 @@
         .hidden { display: none !important; }
         .fadeIn { animation: fadeIn 1.5s ease forwards; }
         .fadeOut { animation: fadeOut 1s ease forwards; }
-        body.dark-mode { background: #222; color: #eee; }
+        body.dark-mode { background: #050505; color: #eee; }
+
+        /* --- CANVAS PHÁO HOA --- */
+        #fireworks-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 950; pointer-events: none; display: none;
+            background: transparent; 
+        }
 
         /* --- MÀN 1: WELCOME --- */
         #scene-welcome {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #ffe6e9; z-index: 1000; /* Cao nhất */
+            background-color: #ffe6e9; z-index: 1000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; text-align: center;
         }
         #scene-welcome h1 { font-family: 'Dancing Script', cursive; font-size: 3rem; margin-bottom: 20px; }
         .btn-start {
@@ -34,121 +42,149 @@
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4); animation: pulse 1.5s infinite;
         }
 
-        /* --- MÀN 2: CSS CAKE --- */
+        /* --- MÀN 2: BÁNH KEM --- */
         #scene-cake {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 900;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding-top: 50px; 
         }
         .cake-container {
-            position: relative; width: 250px; height: 200px; margin-top: 50px;
-            /* Không click vào bánh được, phải click vào nến */
-            cursor: default; 
+            position: relative; width: 320px; height: 320px; cursor: default;
+            display: flex; justify-content: center; align-items: flex-end; margin-bottom: 20px;
         }
-        .cake-layer { position: absolute; width: 100%; border-radius: 20px; }
-        .layer-bottom { bottom: 0; height: 100px; background: #f3a6b3; box-shadow: 0 5px 0 #e08a9d, 0 10px 20px rgba(0,0,0,0.3); }
-        .layer-top { bottom: 50px; height: 80px; background: #ffccd5; box-shadow: 0 5px 0 #f3a6b3; z-index: 2; }
-        .icing {
-            top: 70px; height: 30px; background: #fff; border-radius: 20px 20px 5px 5px; z-index: 3;
-            background-image: radial-gradient(circle at 20px 0, #fff 15px, transparent 16px);
-            background-size: 40px 20px; background-repeat: repeat-x;
+        .cake-body {
+            position: absolute; bottom: 0; width: 300px; height: 130px;
+            background: linear-gradient(to right, #f3a6b3, #ffbcc9, #f3a6b3);
+            border-radius: 0 0 150px 150px / 0 0 45px 45px;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.15); overflow: hidden;
         }
-        
-        /* Cấu hình Nến - Click vào đây mới tắt */
+        .cake-body::before {
+            content: ''; position: absolute; top: -45px; left: 0; width: 300px; height: 90px;
+            background: #ffccd5; border-radius: 50%;
+            box-shadow: inset 0 5px 10px rgba(255,255,255,0.5);
+        }
+        .cake-icing {
+            position: absolute; bottom: 85px; width: 290px; height: 85px;
+            background: linear-gradient(to bottom, #fff, #fffdf0);
+            border-radius: 50%; z-index: 10; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.05);
+        }
+        .cake-dollops {
+            position: absolute; bottom: 82px; z-index: 11; display: flex; justify-content: center; width: 300px;
+        }
+        .dollop {
+            width: 18px; height: 18px; background: #fffdf0; border-radius: 50% 50% 5px 5px;
+            margin: 0 -4px; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.05); transform: rotate(10deg);
+        }
+        .dollop:nth-child(even) { transform: rotate(-10deg); margin-top: 3px; }
+        .cake-toppings {
+            position: absolute; bottom: 135px; z-index: 15; width: 240px; 
+            display: flex; justify-content: center; gap: 5px; align-items: flex-end;
+            font-size: 2.2rem; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2));
+        }
+        .topping-item { transition: transform 0.3s; }
+        .topping-item:hover { transform: scale(1.2) rotate(10deg); }
         .candle {
-            position: absolute; bottom: 150px; width: 12px; height: 45px;
-            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #ff4d6d 5px, #ff4d6d 10px);
-            border-radius: 3px; z-index: 4; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            cursor: pointer; /* Hình bàn tay chỉ khi di chuột vào nến */
-            transition: transform 0.2s;
+            position: absolute; bottom: 130px; width: 10px; height: 65px;
+            background: repeating-linear-gradient(90deg, #fff, #fff 3px, #ff8fa3 3px, #ff8fa3 6px);
+            border-radius: 3px; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer; transition: transform 0.2s;
         }
-        .candle:hover { transform: scale(1.1); } /* Hiệu ứng phóng to nhẹ khi di chuột vào nến */
-        
-        .c1 { left: 50px; }
-        .c2 { left: 120px; }
-        .c3 { left: 190px; }
-        .wick { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 8px; background: #333; border-radius: 2px; }
+        .candle:hover { transform: scale(1.1); box-shadow: 0 0 15px #ffeb3b; }
+        .c1 { margin-left: -75px; transform: rotate(-5deg); } 
+        .c2 { margin-left: 0; bottom: 135px; z-index: 21;} 
+        .c3 { margin-left: 75px; transform: rotate(5deg); }
+        .wick { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 8px; background: #333; }
         .flame {
-            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-            width: 16px; height: 25px;
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 14px; height: 20px;
             background: radial-gradient(ellipse at bottom, #ffeb3b 0%, #ff9800 60%, #ff5722 100%);
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            box-shadow: 0 0 20px #ffeb3b, 0 0 40px #ff9800;
+            box-shadow: 0 0 10px #ffeb3b, 0 0 20px #ff9800;
             animation: flicker 0.1s infinite alternate; transform-origin: bottom center;
         }
         .cake-container.blown-out .flame { display: none; }
-        .cake-instruction { margin-top: 40px; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px #ff4d6d; }
+        .cake-instruction { margin-top: 10px; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px #ff4d6d; z-index: 901; text-align: center;}
 
-        /* --- MÀN 3: BLIND BOX --- */
+        /* --- MÀN 3: BLIND BOX (Đã sửa lỗi hiển thị) --- */
         #scene-gifts {
-            padding: 50px 20px; text-align: center; min-height: 100vh;
+            padding: 30px 15px; text-align: center; min-height: 100vh;
             display: flex; flex-direction: column; justify-content: center;
             position: relative; z-index: 800;
         }
         .gift-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Mặc định PC 2 cột */
             gap: 20px; max-width: 800px; margin: 30px auto;
+            width: 100%;
         }
         .blind-box {
-            background: #ff8fa3; border-radius: 15px; aspect-ratio: 1/1;
+            background: #ff8fa3; border-radius: 15px; 
+            aspect-ratio: 1/1; /* Giữ hình vuông */
             display: flex; justify-content: center; align-items: center;
             cursor: pointer; font-size: 3rem; color: white;
             box-shadow: 0 8px 20px rgba(255, 77, 109, 0.3);
             transition: all 0.5s ease; position: relative; overflow: hidden;
         }
         .blind-box:hover:not(.opened) { animation: shake 0.5s ease infinite; }
-        .blind-box.opened { background: white; transform: rotateY(180deg); cursor: default; box-shadow: none; border: 2px solid #ffccd5;}
+        .blind-box.opened { 
+            background: white; transform: rotateY(180deg); cursor: default; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 3px solid #ffccd5;
+        }
+        
+        /* Cấu trúc nội dung bên trong hộp sau khi mở */
         .box-content {
-            display: none; flex-direction: column; align-items: center; padding: 10px;
-            transform: rotateY(180deg); width: 100%; height: 100%;
+            display: none; 
+            flex-direction: column; 
+            width: 100%; height: 100%;
+            transform: rotateY(180deg); /* Lật ngược lại để chữ xuôi */
+            overflow: hidden; border-radius: 12px;
         }
         .blind-box.opened .box-content { display: flex; }
-        .box-content img { width: 90%; height: auto; border-radius: 10px; object-fit: cover; flex-grow: 1; }
-        .box-content p { margin-top: 10px; font-size: 0.9rem; color: #590d22; font-weight: bold; }
+
+        /* Ảnh chiếm 75% chiều cao */
+        .box-content img { 
+            width: 100%; height: 75%; 
+            object-fit: cover; /* Cắt ảnh vừa khung, không bị méo */
+            display: block;
+        }
+        /* Lời chúc chiếm 25% chiều cao */
+        .box-content p { 
+            width: 100%; height: 25%;
+            margin: 0; padding: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: #d63384; font-weight: bold;
+            background-color: #fff0f3;
+            line-height: 1.2;
+        }
 
         /* --- MÀN CHUYỂN TIẾP --- */
         #transition-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-family: 'Dancing Script', cursive; font-size: 3rem;
-            text-align: center; width: 100%; z-index: 800;
+            font-family: 'Dancing Script', cursive; font-size: 2.5rem;
+            text-align: center; width: 100%; z-index: 800; padding: 20px;
         }
 
         /* --- MÀN 4: FINALE --- */
         #scene-finale { 
             max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; min-height: 100vh;
-            position: relative; 
-            z-index: 500; /* Màn này chứa nội dung chính */
+            position: relative; z-index: 500;
         }
-
-        /* Container của Lời chúc và Ảnh cuối: Đặt Z-index cao nhất để đè lên ảnh rơi */
-        .finale-content {
-            position: relative;
-            z-index: 1000; /* QUAN TRỌNG: Cao hơn z-index của falling-photo */
-        }
-
+        .finale-content { position: relative; z-index: 1000; }
         .final-photo-frame {
             background: white; padding: 15px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); transform: rotate(-2deg); margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); transform: rotate(-2deg); margin-bottom: 30px;
         }
         .final-photo-frame img { width: 100%; border-radius: 10px; display: block; }
-        
         .long-wish {
-            background: rgba(255, 255, 255, 0.95); /* Nền trắng đục để dễ đọc chữ */
-            padding: 30px; border-radius: 20px; font-size: 1.1rem; line-height: 1.8; color: #590d22;
-            box-shadow: 0 5px 25px rgba(214, 51, 132, 0.2);
-            backdrop-filter: blur(5px); /* Làm mờ ảnh rơi phía sau 1 chút cho đẹp */
+            background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 20px; 
+            font-size: 1.1rem; line-height: 1.6; color: #590d22; text-align: left;
+            box-shadow: 0 5px 25px rgba(214, 51, 132, 0.2); backdrop-filter: blur(5px);
         }
-
-        /* --- HIỆU ỨNG RƠI ẢNH --- */
         .falling-photo {
-            position: fixed; top: -20%; 
-            z-index: 100; /* Thấp hơn .finale-content (1000) nhưng cao hơn body */
-            animation: fall linear forwards;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid white; border-radius: 5px;
-            pointer-events: none; /* Để chuột click xuyên qua ảnh rơi */
+            position: fixed; top: -20%; z-index: 100; animation: fall linear forwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid white; border-radius: 5px; pointer-events: none;
         }
 
-        /* --- ANIMATIONS --- */
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -156,60 +192,96 @@
         @keyframes fall { to { transform: translateY(120vh) rotate(360deg); } }
         @keyframes flicker { 0% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) scale(0.9, 1.1); opacity: 0.8; } }
 
+        /* --- RESPONSIVE CHO MOBILE (QUAN TRỌNG) --- */
         @media (max-width: 600px) {
-            #scene-welcome h1, #transition-text { font-size: 2rem; }
-            .gift-grid { grid-template-columns: repeat(2, 1fr); }
+            /* Text nhỏ lại xíu cho vừa màn hình */
+            #scene-welcome h1 { font-size: 2.2rem; }
+            
+            /* Bánh kem nhỏ lại để không bị khuất */
+            .cake-container { transform: scale(0.8); margin-bottom: 0; }
+            #scene-cake { padding-top: 10px; }
+
+            /* Blind Box chuyển thành 1 cột cho to và rõ */
+            .gift-grid { 
+                grid-template-columns: 1fr; /* 1 cột duy nhất */
+                max-width: 350px; /* Giới hạn chiều rộng cho đẹp */
+            }
+            
+            /* Text bên trong box to hơn chút cho dễ đọc */
+            .box-content p { font-size: 1.1rem; padding: 10px; }
+
+            /* Màn cuối */
+            .long-wish { padding: 20px; font-size: 1rem; }
+            h1.main-title { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
     <audio id="hpbd-music" loop>
-        <source src="happy-birthday-song.mp3" type="audio/mpeg">
+        <source src="hpbd.mp3" type="audio/mpeg">
     </audio>
+    
+    <canvas id="fireworks-canvas"></canvas>
 
     <div id="scene-welcome">
-        <h1>Suỵt! Em đã sẵn sàng nhận quà chưa? 🤫</h1>
+        <h1>Suỵt! Sẵn sàng nhận quà chưa? 🤫</h1>
         <button class="btn-start" onclick="startJourney()">Mở Quà Ngay 🎁</button>
     </div>
 
     <div id="scene-cake" class="hidden">
         <div class="cake-container" id="css-cake-container">
-            <div class="cake-layer layer-bottom"></div>
-            <div class="cake-layer layer-top"></div>
-            <div class="cake-layer icing"></div>
+            <div class="cake-body"></div>
+            <div class="cake-dollops">
+                <div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div><div class="dollop"></div>
+            </div>
+            <div class="cake-icing"></div>
+            <div class="cake-toppings">
+                <span class="topping-item">🍓</span>
+                <span class="topping-item">🍒</span>
+                <span class="topping-item" style="font-size: 2.5rem; margin-bottom: 5px;">🍓</span> <span class="topping-item">✨</span>
+                <span class="topping-item">🍓</span>
+            </div>
             
-            <div class="candle c1" onclick="blowCandles()">
-                <div class="wick"></div>
-                <div class="flame"></div>
-            </div>
-            <div class="candle c2" onclick="blowCandles()">
-                <div class="wick"></div>
-                <div class="flame"></div>
-            </div>
-            <div class="candle c3" onclick="blowCandles()">
-                <div class="wick"></div>
-                <div class="flame"></div>
-            </div>
+            <div class="candle c1" onclick="blowCandles()"><div class="wick"></div> <div class="flame"></div></div>
+            <div class="candle c2" onclick="blowCandles()"><div class="wick"></div> <div class="flame"></div></div>
+            <div class="candle c3" onclick="blowCandles()"><div class="wick"></div> <div class="flame"></div></div>
         </div>
         <p class="cake-instruction" id="cake-msg">Hãy click vào ngọn nến để thổi tắt nhé! 🕯️</p>
     </div>
 
     <div id="scene-gifts" class="hidden">
-        <h2 style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 30px;">Blind Box Thời Gian 🎁</h2>
-        <p>Chọn từng hộp để xem điều bất ngờ nhé!</p>
+        <h2 style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 20px;">Blind Box 🎁</h2>
+        <p style="margin-bottom: 20px;">Chọn từng hộp để xem điều bất ngờ nhé!</p>
+        
         <div class="gift-grid">
-            <div class="blind-box" onclick="openBox(this)"><span>?</span>
-                <div class="box-content"><img src="gift1.jpg" alt="1"><p>Lời chúc 1...</p></div>
+            <div class="blind-box" onclick="openBox(this)">
+                <span>?</span>
+                <div class="box-content">
+                    <img src="anh6.jpg" alt="1">
+                    <p>Chúc Thư tuổi mới xinh đẹp!</p>
+                </div>
             </div>
-            <div class="blind-box" onclick="openBox(this)"><span>?</span>
-                <div class="box-content"><img src="gift2.jpg" alt="2"><p>Lời chúc 2...</p></div>
+            <div class="blind-box" onclick="openBox(this)">
+                <span>?</span>
+                <div class="box-content">
+                    <img src="anh11.jpg" alt="2">
+                    <p>Luôn vui vẻ và yêu đời</p>
+                </div>
             </div>
-            <div class="blind-box" onclick="openBox(this)"><span>?</span>
-                <div class="box-content"><img src="gift3.jpg" alt="3"><p>Lời chúc 3...</p></div>
+            <div class="blind-box" onclick="openBox(this)">
+                <span>?</span>
+                <div class="box-content">
+                    <img src="anh8.jpg" alt="3">
+                    <p>Thuận lợi trong công việc</p>
+                </div>
             </div>
-            <div class="blind-box" onclick="openBox(this)"><span>?</span>
-                <div class="box-content"><img src="gift4.jpg" alt="4"><p>Lời chúc 4...</p></div>
+            <div class="blind-box" onclick="openBox(this)">
+                <span>?</span>
+                <div class="box-content">
+                    <img src="anh9.jpg" alt="4">
+                    <p>Thành công rực rỡ ✨</p>
+                </div>
             </div>
         </div>
     </div>
@@ -221,17 +293,15 @@
     <div id="scene-finale" class="hidden">
         <div class="finale-content">
             <h1 style="font-family: 'Dancing Script'; font-size: 3.5rem; margin-bottom: 30px; text-shadow: 2px 2px white;">HAPPY BIRTHDAY! 🎂</h1>
-            <div class="final-photo-frame">
-                <img src="final-photo.jpg" alt="Bức ảnh đẹp nhất">
-            </div>
+            <div class="final-photo-frame"><img src="anh5.jpg" alt="Bức ảnh đẹp nhất"></div>
             <div class="long-wish">
                 <p>
-                    Gửi em gái yêu quý, <br><br>
-                    Chúc mừng sinh nhật em! 🎉 Món quà cuối cùng này là những lời chúc chân thành nhất của anh.
-                    Hy vọng những tấm ảnh vừa rồi đã gợi lại cho em những kỷ niệm vui vẻ. <br><br>
-                    Tuổi mới hãy thật hạnh phúc, xinh đẹp và thành công nhé. Anh sẽ luôn là hậu phương vững chắc cho em.<br><br>
-                    Yêu thương em nhiều! ❤️<br>
-                    <strong style="float: right;">- [Tên Anh Trai] -</strong>
+                    Dear Thư, <br><br>
+                    Chúc mừng sinh nhật Thư nhen! 🎉 Sau khoảng nhiều năm thì đây chắc là lần đầu tiên Luân tặng sinh nhật Thư ha,  mặc dù chỉ là một món quà nhỏ thôi.<br><br>
+                    Chúc Thư tuổi mới thành công hơn trong công việc hen, khó khăn nào rồi cũng sẽ qua thôi cố gắng lên nhé. Lời chúc cuối cùng chắc là vẫn như mọi người thôi.<br><br>
+                    Chúc Thư luôn xinh đẹp, vui vẻ, hạnh phúc và gặp nhiều may mắn trong cuộc sống. Hy vọng món quà nhỏ này sẽ làm Thư vui hơn trong ngày đặc biệt này. 🎁<br><br>
+                    Mãi iu ❤️<br><br>
+                    <strong style="float: right;">- From Vũ Phạm Luân With Love - ❤️</strong>
                 </p>
                 <div style="clear: both;"></div>
             </div>
@@ -242,34 +312,42 @@
         let giftsOpenedCount = 0;
         const totalGifts = 4;
         const music = document.getElementById("hpbd-music");
+        const fallingImages = ['anh1.jpg', 'anh2.jpg', 'anh3.jpg', 'anh4.jpg', 'anh12.jpg','anh13.jpg', 'anh5.jpg', 'anh6.jpg', 'anh7.jpg', 'anh8.jpg', 'anh9.jpg', 'anh10.jpg', 'anh11.jpg','anh14.jpg', 'anh15.jpg', 'anh16.jpg'];
         
-        // DANH SÁCH ẢNH RƠI (Thay tên ảnh của bạn vào đây)
-        const fallingImages = [
-            'gift1.jpg', 'gift2.jpg', 'gift3.jpg', 'gift4.jpg', 'final-photo.jpg'
-        ];
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let fireworks = [];
+        let particles = [];
+        let fireworksActive = false;
+        let animationFrameId;
 
         function startJourney() {
             music.volume = 0.6;
             music.play().catch(e => console.log("Audio play blocked"));
-            document.body.classList.add('dark-mode');
+             document.body.style.background = "linear-gradient(135deg, #444 0%, #222 100%)";
+             document.body.style.color = "#eee";
             changeScene('scene-welcome', 'scene-cake', 'fadeIn');
         }
 
-        // --- XỬ LÝ THỔI NẾN (Cập nhật) ---
         function blowCandles() {
             const cakeContainer = document.getElementById('css-cake-container');
             const cakeMsg = document.getElementById('cake-msg');
-            
-            // Nếu nến đã tắt rồi thì không làm gì nữa (tránh click nhiều lần)
             if (cakeContainer.classList.contains('blown-out')) return;
-
-            cakeContainer.classList.add('blown-out');
-            cakeMsg.innerHTML = "Yeah! Nến tắt rồi! 👏";
             
+            cakeContainer.classList.add('blown-out');
+            cakeMsg.innerHTML = "Chúc mừng sinh nhật! 🎆";
+            
+            document.body.classList.add('dark-mode');
+            
+            startFireworksEffect();
+
             setTimeout(() => {
-                 document.body.classList.remove('dark-mode');
+                stopFireworksEffect();
+                document.body.classList.remove('dark-mode');
+                 document.body.style.background = "";
+                 document.body.style.color = "";
                 changeScene('scene-cake', 'scene-gifts', 'fadeIn');
-            }, 2000);
+            }, 6000); 
         }
 
         function openBox(boxElement) {
@@ -286,7 +364,6 @@
             changeScene('scene-gifts', 'transition-text', 'fadeIn');
             setTimeout(() => {
                 changeScene('transition-text', 'scene-finale', 'fadeIn');
-                // Bắt đầu mưa ảnh ngay khi vào màn cuối
                 startFallingPhotos();
             }, 3000);
         }
@@ -317,6 +394,129 @@
                 setTimeout(() => imgContainer.remove(), 10000);
             }, 800);
         }
+
+        // ==================== LOGIC PHÁO HOA VẬT LÝ THỰC TẾ ====================
+        function startFireworksEffect() {
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            fireworksActive = true;
+            loopFireworks();
+        }
+        function stopFireworksEffect() {
+            fireworksActive = false;
+            setTimeout(() => { 
+                cancelAnimationFrame(animationFrameId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'none'; 
+            }, 1000);
+        }
+
+        function loopFireworks() {
+            animationFrameId = requestAnimationFrame(loopFireworks);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            if (fireworksActive && Math.random() < 0.05) {
+                fireworks.push(new Firework());
+            }
+
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                fireworks[i].update();
+                fireworks[i].draw();
+                if (fireworks[i].done) fireworks.splice(i, 1);
+            }
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].done) particles.splice(i, 1);
+            }
+        }
+
+        class Firework {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.sx = Math.random() * canvas.width; 
+                this.targetY = canvas.height * 0.2 + Math.random() * canvas.height * 0.3; 
+                this.speed = 8 + Math.random() * 4; 
+                this.angle = Math.atan2(this.targetY - this.y, this.x - this.sx);
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+                this.hue = Math.random() * 360;
+                this.brightness = Math.random() * 30 + 50;
+                this.done = false;
+                this.coordinates = []; 
+                this.coordinateCount = 3;
+                while(this.coordinateCount--) {
+                    this.coordinates.push([this.x, this.y]);
+                }
+            }
+            update() {
+                this.coordinates.pop();
+                this.coordinates.unshift([this.x, this.y]);
+                if (this.y <= this.targetY || this.vy >= 0) {
+                    this.done = true;
+                    createParticles(this.x, this.y, this.hue);
+                } else {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, hue) {
+                this.x = x; this.y = y;
+                this.coordinates = [];
+                this.coordinateCount = 5; 
+                while(this.coordinateCount--) { this.coordinates.push([this.x, this.y]); }
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = Math.random() * 10 + 2; 
+                this.friction = 0.92; 
+                this.gravity = 0.15; 
+                this.hue = hue + Math.random() * 20 - 10; 
+                this.brightness = Math.random() * 30 + 50;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.005; 
+                this.done = false;
+            }
+            update() {
+                this.coordinates.pop();
+                this.coordinates.unshift([this.x, this.y]);
+                this.speed *= this.friction;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed + this.gravity;
+                this.alpha -= this.decay;
+                if (this.alpha <= this.decay) this.done = true;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+                ctx.lineTo(this.x, this.y);
+                ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function createParticles(x, y, hue) {
+            let particleCount = 80; 
+            while(particleCount--) {
+                particles.push(new Particle(x, y, hue));
+            }
+        }
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
     </script>
 </body>
 </html>
